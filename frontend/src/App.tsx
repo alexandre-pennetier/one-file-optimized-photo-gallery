@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Banner } from './Banner'
 import { Gallery } from './Gallery'
 import { Lightbox } from './Lightbox'
-import type { Photo } from './layout'
+import { sortPhotos, type Photo, type SortOrder } from './layout'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; photos: Photo[] }
 
 export default function App() {
   const [state, setState] = useState<State>({ status: 'loading' })
+  const [order, setOrder] = useState<SortOrder>('newest')
   const [open, setOpen] = useState<number | null>(null)
   const close = useCallback(() => setOpen(null), [])
 
@@ -26,14 +28,25 @@ export default function App() {
     return () => ctrl.abort()
   }, [])
 
+  const sorted = useMemo(() => (state.status === 'ready' ? sortPhotos(state.photos, order) : []), [state, order])
+
   if (state.status === 'loading') return null
   if (state.status === 'error') return <div className="empty">Could not load the photo list.</div>
   if (state.photos.length === 0) return <div className="empty">Add JPEGs to the photos folder and rebuild.</div>
 
   return (
-    <>
-      <Gallery photos={state.photos} onOpen={setOpen} />
-      {open !== null && <Lightbox photos={state.photos} index={open} onChange={setOpen} onClose={close} />}
-    </>
+    <div className="app">
+      <Banner
+        count={sorted.length}
+        order={order}
+        onToggle={() => {
+          setOpen(null)
+          setOrder((o) => (o === 'newest' ? 'oldest' : 'newest'))
+        }}
+      />
+      {/* Remounted on reorder so the scroll position resets to the top. */}
+      <Gallery key={order} photos={sorted} onOpen={setOpen} />
+      {open !== null && <Lightbox photos={sorted} index={open} onChange={setOpen} onClose={close} />}
+    </div>
   )
 }

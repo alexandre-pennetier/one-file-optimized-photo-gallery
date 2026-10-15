@@ -3,9 +3,10 @@
 // skipped and stale files are removed.
 import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
-import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import exifr from 'exifr'
 import sharp from 'sharp'
 
 export const SETTINGS = {
@@ -29,6 +30,22 @@ async function encode(buf, id, outDir) {
   return { w: full.width, h: full.height, size: full.size, lqip: `data:image/webp;base64,${tiny.toString('base64')}` }
 }
 
+/**
+ * When the photo was taken, as epoch ms: EXIF capture date, else the file's
+ * modification time. EXIF has no timezone, so the year shown is the one the
+ * camera wrote.
+ */
+async function takenAt(buf, file) {
+  try {
+    const exif = await exifr.parse(buf, { pick: ['DateTimeOriginal', 'CreateDate', 'DateTimeDigitized'] })
+    const date = exif?.DateTimeOriginal ?? exif?.CreateDate ?? exif?.DateTimeDigitized
+    if (date instanceof Date && !Number.isNaN(date.getTime())) return date.getTime()
+  } catch {
+    // unreadable EXIF: fall back to mtime
+  }
+  return (await stat(file)).mtimeMs
+}
+
 async function readPrevious(manifestPath) {
   try {
     return new Map(JSON.parse(await readFile(manifestPath, 'utf8')).map((p) => [p.id, p]))
@@ -38,16 +55,18 @@ async function readPrevious(manifestPath) {
 }
 
 async function processPhoto(name, previous, { srcDir, outDir, log }) {
-  const buf = await readFile(path.join(srcDir, name))
+  const file = path.join(srcDir, name)
+  const buf = await readFile(file)
+  const taken = Math.round(await takenAt(buf, file))
   const id = createHash('sha1').update(buf).update(settingsKey).digest('hex').slice(0, 12)
   const cached = previous.get(id)
   const done = existsSync(path.join(outDir, `${id}.avif`)) && existsSync(path.join(outDir, `${id}-t.avif`))
-  if (cached && done) return { photo: { ...cached, name }, encoded: false }
+  if (cached && done) return { photo: { ...cached, name, taken }, encoded: false }
 
   try {
     const { size, ...meta } = await encode(buf, id, outDir)
     log(`  optimized ${name} -> ${(size / 1024).toFixed(0)} KB`)
-    return { photo: { id, name, ...meta, thumb: `${id}-t.avif`, full: `${id}.avif` }, encoded: true }
+    return { photo: { id, name, taken, ...meta, thumb: `${id}-t.avif`, full: `${id}.avif` }, encoded: true }
   } catch (err) {
     throw new Error(`failed to process photos/${name}: ${err.message}`, { cause: err })
   }

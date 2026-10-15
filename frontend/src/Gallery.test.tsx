@@ -7,6 +7,7 @@ import type { Photo } from './layout'
 const photos: Photo[] = Array.from({ length: 2000 }, (_, i) => ({
   id: String(i),
   name: `${i}.jpg`,
+  taken: 0,
   w: 1500,
   h: 1000,
   thumb: `${i}-t.avif`,

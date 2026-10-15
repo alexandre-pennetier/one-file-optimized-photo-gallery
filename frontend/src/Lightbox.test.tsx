@@ -7,6 +7,7 @@ import type { Photo } from './layout'
 const photos: Photo[] = ['a', 'b', 'c'].map((n) => ({
   id: n,
   name: `${n}.jpg`,
+  taken: 0,
   w: 100,
   h: 100,
   thumb: `${n}-t.avif`,

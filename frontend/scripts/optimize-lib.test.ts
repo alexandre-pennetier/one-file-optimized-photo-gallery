@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readdir, readFile, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import sharp from 'sharp'
@@ -25,6 +25,35 @@ beforeEach(async () => {
   await import('node:fs/promises').then((fs) => fs.mkdir(srcDir))
 })
 afterEach(() => rm(dir, { recursive: true, force: true }))
+
+describe('capture date', () => {
+  it('uses the EXIF DateTimeOriginal', async () => {
+    const buf = await sharp({ create: { width: 40, height: 30, channels: 3, background: '#888' } })
+      .withExif({ IFD2: { DateTimeOriginal: '2019:07:04 12:30:00' } })
+      .jpeg()
+      .toBuffer()
+    await writeFile(path.join(srcDir, 'dated.jpg'), buf)
+    const { photos } = await run()
+    expect(new Date(photos[0].taken).getFullYear()).toBe(2019)
+    expect(new Date(photos[0].taken).getMonth()).toBe(6)
+  })
+
+  it('falls back to the file modification time without EXIF', async () => {
+    const file = path.join(srcDir, 'plain.jpg')
+    await writeFile(file, await jpeg(40, 30))
+    const mtime = new Date('2015-03-02T10:00:00')
+    await utimes(file, mtime, mtime)
+    const { photos } = await run()
+    expect(photos[0].taken).toBe(mtime.getTime())
+  })
+
+  it('keeps the date on a cached second run', async () => {
+    await writeFile(path.join(srcDir, 'a.jpg'), await jpeg(40, 30))
+    const first = await run()
+    const second = await run()
+    expect(second.photos[0].taken).toBe(first.photos[0].taken)
+  })
+})
 
 describe('optimizePhotos', () => {
   it('writes full + thumb AVIFs and a manifest entry per JPEG', async () => {

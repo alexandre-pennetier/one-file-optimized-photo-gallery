@@ -26,7 +26,8 @@ frontend/
   scripts/appicon.svg         source of build/appicon.png
   public/photos/              GENERATED, gitignored (AVIFs + manifest.json)
   src/App.tsx                 virtualized gallery + lightbox
-  src/Gallery.tsx             windowed grid of tiles
+  src/Banner.tsx              top bar: title, count, sort-order toggle
+  src/Gallery.tsx             windowed grid of tiles + year headers
   src/Lightbox.tsx            full-size viewer (dialog, keyboard + buttons)
   src/useViewport.ts          rAF-throttled scroll/size tracking
   src/layout.ts               justified-rows layout + binary search (pure, unit-tested)
@@ -62,6 +63,8 @@ Per photo it produces, under `frontend/public/photos/` (copied into `dist`, then
 - `<id>.avif`: full size, long edge 2000 px, q50, effort 6 (lightbox)
 - `<id>-t.avif`: thumbnail, long edge 720 px, q45 (grid)
 - a 16 px blurred WebP data URI (`lqip`) inlined in `manifest.json` as a placeholder
+- `taken`: capture time in epoch ms (EXIF `DateTimeOriginal`, else file mtime), recomputed every
+  run so it is never stale in the cache
 - `manifest.json`: `[{id, name, w, h, thumb, full, lqip}]`
 
 `id` is a SHA-1 prefix of the source bytes + encoder settings, so edits and setting changes are detected, unchanged photos are
@@ -81,6 +84,9 @@ Typical result: ~40 MB of JPEG -> ~2.7 MB for 22 photos.
   images use `decoding="async"` and a blurred LQIP background.
 - **Responsive**: target row height follows window height (clamped 140-320 px), so resizing the
   window reflows the gallery live.
+- **Year groups**: photos are sorted by `taken` (most recent first by default; the banner button
+  toggles, ties broken by file name) and a header row with a rule is inserted whenever the year
+  changes (`layout.ts#layoutByYear`). EXIF has no timezone, so the year is the one the camera wrote.
 - **Lightbox**: click to open, Esc/click to close, Left/Right to navigate.
 
 ## Tidbits

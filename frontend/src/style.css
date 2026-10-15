@@ -17,14 +17,76 @@ body {
     sans-serif;
 }
 
-.scroller {
+.app {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+}
+.banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 48px;
+  background: #141418;
+  border-bottom: 1px solid #25252b;
+}
+.banner h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.count {
+  color: #888;
+}
+.sort {
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 1px solid #34343c;
+  border-radius: 6px;
+  color: inherit;
+  background: #1c1c22;
+  font: inherit;
+  cursor: pointer;
+}
+.sort:hover {
+  background: #26262e;
+}
+.sort:focus-visible {
+  outline: 2px solid #5ec0f5;
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
 }
 .canvas {
   position: relative;
   width: 100%;
+}
+.year {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: 0 12px 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.year::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  margin-bottom: 8px;
+  background: #34343c;
 }
 .tile {
   position: absolute;
