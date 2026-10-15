@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"log"
-	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -17,16 +16,8 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func init() {
-	// Register a custom event whose associated data type is string.
-	// This is not required, but the binding generator will pick up registered events
-	// and provide a strongly typed JS/TS API for them.
-	application.RegisterEvent[string]("time")
-}
-
 // main function serves as the application's entry point. It initializes the application, creates a window,
-// and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
-// logs any error that might occur.
+// and runs the application, logging any error that might occur.
 func main() {
 
 	// Create a new Wails application by providing the necessary options.
@@ -36,10 +27,7 @@ func main() {
 	// 'Mac' options tailor the application when running an macOS.
 	app := application.New(application.Options{
 		Name:        "wails-gallery",
-		Description: "A demo of using raw HTML & CSS",
-		Services: []application.Service{
-			application.NewService(&GreetService{}),
-		},
+		Description: "Photo gallery",
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
@@ -54,7 +42,7 @@ func main() {
 	// 'BackgroundColour' is the background colour of the window.
 	// 'URL' is the URL that will be loaded into the webview.
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title: "Window 1",
+		Title: "Gallery",
 		// Window sized to the golden ratio (1000 / 618 ≈ 1.618).
 		Width:  1000,
 		Height: 618,
@@ -66,16 +54,6 @@ func main() {
 		BackgroundColour: application.NewRGB(6, 7, 15),
 		URL:              "/",
 	})
-
-	// Create a goroutine that emits an event containing the current time every second.
-	// The frontend can listen to this event and update the UI accordingly.
-	go func() {
-		for {
-			now := time.Now().Format(time.RFC1123)
-			app.Event.Emit("time", now)
-			time.Sleep(time.Second)
-		}
-	}()
 
 	// Run the application. This blocks until the application has been exited.
 	err := app.Run()

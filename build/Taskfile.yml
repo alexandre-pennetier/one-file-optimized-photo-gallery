@@ -69,6 +69,23 @@ tasks:
     cmds:
       - yarn install
 
+  optimize:photos:
+    summary: Optimizes ../photos/*.jpg into AVIFs under frontend/public/photos (skipped when unchanged)
+    dir: frontend
+    run: once
+    deps:
+      - task: install:frontend:deps
+    sources:
+      - ../photos/*.jpg
+      - ../photos/*.jpeg
+      - ../photos/*.JPG
+      - ../photos/*.JPEG
+      - scripts/optimize-photos.mjs
+    generates:
+      - public/photos/manifest.json
+    cmds:
+      - node scripts/optimize-photos.mjs
+
   build:frontend:
     label: build:frontend (DEV={{.DEV}} RUNNER={{.PACKAGE_MANAGER}})
     summary: Build the frontend project
@@ -86,6 +103,7 @@ tasks:
       - dist/**/*
     deps:
       - task: install:frontend:deps
+      - task: optimize:photos
       - task: generate:bindings
         vars:
           BUILD_FLAGS:
@@ -207,6 +225,7 @@ tasks:
     summary: Runs the frontend in development mode
     deps:
       - task: install:frontend:deps
+      - task: optimize:photos
     cmds:
       - task: frontend:dev:{{.PACKAGE_MANAGER}}
 

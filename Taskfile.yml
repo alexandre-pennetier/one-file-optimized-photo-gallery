@@ -24,6 +24,12 @@ tasks:
     cmds:
       - task: "{{.GOOS}}:build"
 
+  build:small:
+    summary: Production build, then compresses the binary with UPX (requires `upx` on PATH)
+    cmds:
+      - task: build
+      - upx --best --lzma "{{.BIN_DIR}}/{{.APP_NAME}}{{exeExt}}"
+
   package:
     summary: Packages a production build of the application
     cmds:

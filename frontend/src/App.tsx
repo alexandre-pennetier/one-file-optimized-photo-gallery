@@ -1,121 +1,113 @@
-import { useState, useEffect, useRef } from 'react'
-import {Events, WML} from "@wailsio/runtime";
-import {GreetService} from "../bindings/changeme";
+import type React from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { firstRowAt, justify, type Photo } from './layout'
 
-// Show the actual Wails version this project was generated against.
-const wailsVersion = "v3.0.0-beta.30";
+const GAP = 4
+const BUFFER_PX = 1200 // render this far above/below the viewport
 
-function App() {
-  const [name, setName] = useState<string>('');
-  const [time, setTime] = useState<string>('Listening for Time event...');
+const Tile = memo(function Tile(props: {
+  photo: Photo; x: number; y: number; w: number; h: number; onOpen: (i: number) => void; index: number
+}) {
+  const { photo, x, y, w, h, onOpen, index } = props
+  return (
+    <button
+      className="tile"
+      style={{
+        transform: `translate(${x}px, ${y}px)`,
+        left: 0, top: 0,
+        width: w, height: h,
+        backgroundImage: `url(${photo.lqip})`,
+      }}
+      onClick={() => onOpen(index)}
+      aria-label={photo.name}
+    >
+      <img src={`/photos/${photo.thumb}`} width={photo.w} height={photo.h}
+           alt="" decoding="async" draggable={false} />
+    </button>
+  )
+})
 
-  const titleNameRef = useRef<HTMLSpanElement | null>(null);
-  const toastRef = useRef<HTMLDivElement | null>(null);
-  const resultRef = useRef<HTMLSpanElement | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  // Crossfade the framework word in the heading ("Wails + React") to the name
-  // the user entered ("Wails + <name>"): the old word fades out while the new one
-  // fades in over the same spot.
-  const swapTitleName = (name: string) => {
-    const titleNameElement = titleNameRef.current;
-    if (!titleNameElement) {
-      return;
+function useScrollState(scroller: React.RefObject<HTMLDivElement>) {
+  const [state, setState] = useState({ top: 0, width: 0, height: 0 })
+  useLayoutEffect(() => {
+    const el = scroller.current!
+    let raf = 0
+    const read = () => {
+      raf = 0
+      setState((s) =>
+        s.top === el.scrollTop && s.width === el.clientWidth && s.height === el.clientHeight
+          ? s
+          : { top: el.scrollTop, width: el.clientWidth, height: el.clientHeight })
     }
-    const current = titleNameElement.querySelector('.title-name-text:not(.is-outgoing)');
-    if (!current || current.textContent === name) {
-      return;
-    }
-    const incoming = document.createElement('span');
-    incoming.className = 'title-name-text is-entering';
-    incoming.textContent = name;
-    current.classList.add('is-outgoing');
-    titleNameElement.appendChild(incoming);
-    // Force a reflow so the transitions run from the starting state.
-    void incoming.offsetWidth;
-    incoming.classList.remove('is-entering');
-    current.classList.add('is-leaving');
-    current.addEventListener('transitionend', () => current.remove(), {once: true});
-  };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(read) }
+    read()
+    el.addEventListener('scroll', schedule, { passive: true })
+    const ro = new ResizeObserver(schedule)
+    ro.observe(el)
+    return () => { el.removeEventListener('scroll', schedule); ro.disconnect(); cancelAnimationFrame(raf) }
+  }, [scroller])
+  return state
+}
 
-  // Pop the toast with the message Go returned, then auto-dismiss it.
-  const showToast = (message: string) => {
-    if (resultRef.current) {
-      resultRef.current.innerText = message;
-    }
-    if (toastRef.current) {
-      toastRef.current.classList.add('is-visible');
-    }
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => {
-      if (toastRef.current) {
-        toastRef.current.classList.remove('is-visible');
-      }
-    }, 4000);
-  };
-
-  const doGreet = () => {
-    let n = name || 'anonymous';
-    swapTitleName(n);
-    GreetService.Greet(n).then(showToast).catch(console.error);
-  };
+export default function App() {
+  const [photos, setPhotos] = useState<Photo[] | null>(null)
+  const [open, setOpen] = useState<number | null>(null)
+  const scroller = useRef<HTMLDivElement>(null)
+  const { top, width, height } = useScrollState(scroller)
 
   useEffect(() => {
-    Events.On('time', (timeValue: any) => {
-      // On a narrow screen the full RFC1123 stamp is too wide for the footer, so
-      // show just the clock time there (matching the CSS breakpoint).
-      const full = timeValue.data;
-      const compact = (full.match(/\d{1,2}:\d{2}:\d{2}/) || [full])[0];
-      setTime(window.matchMedia('(max-width: 640px)').matches ? compact : full);
-    });
-    // Reload WML so it picks up the wml tags
-    WML.Reload();
-  }, []);
+    fetch('/photos/manifest.json').then((r) => r.json()).then(setPhotos).catch(() => setPhotos([]))
+  }, [])
+
+  // Aim for ~1/4 of the window height per row, clamped to a sensible range.
+  const target = Math.max(140, Math.min(320, Math.round(height / 3.2)))
+  const layout = useMemo(
+    () => (photos && width ? justify(photos, width, target, GAP) : null),
+    [photos, width, target],
+  )
+
+  const visible = useMemo(() => {
+    if (!layout || !photos) return []
+    const from = top - BUFFER_PX
+    const to = top + height + BUFFER_PX
+    const out: React.ReactElement[] = []
+    for (let r = firstRowAt(layout.rows, from); r < layout.rows.length && layout.rows[r].top <= to; r++) {
+      const row = layout.rows[r]
+      for (let i = row.first; i <= row.last; i++) {
+        const t = layout.tiles[i]
+        out.push(
+          <Tile key={photos[t.index].id} photo={photos[t.index]} index={t.index}
+                x={t.x} y={t.y} w={t.w} h={t.h} onOpen={setOpen} />,
+        )
+      }
+    }
+    return out
+  }, [layout, photos, top, height])
+
+  const close = useCallback(() => setOpen(null), [])
+  useEffect(() => {
+    if (open === null || !photos) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+      else if (e.key === 'ArrowRight') setOpen((i) => (i === null ? i : Math.min(photos.length - 1, i + 1)))
+      else if (e.key === 'ArrowLeft') setOpen((i) => (i === null ? i : Math.max(0, i - 1)))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, photos, close])
 
   return (
     <>
-      <main className="container">
-        <header className="brand">
-          <a className="brand-mark" data-wml-openURL="https://v3.wails.io" aria-label="Wails website">
-            <img src="/wails.png" className="brand-logo" alt="Wails logo"/>
-          </a>
-          <a className="brand-badge" data-wml-openURL="https://reactjs.org" aria-label="React">
-            <img src="/react.svg" alt="React logo"/>
-          </a>
-        </header>
-
-        <h1 className="title"><span className="title-accent">Wails +</span> <span className="title-name" ref={titleNameRef}><span className="title-name-text">React</span></span></h1>
-        <p className="subtitle">Build beautiful cross-platform apps with Go and React.</p>
-
-        <div className="greet">
-          <div className="input-box">
-            <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <input aria-label="input" className="input" value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Your name" autoComplete="off"/>
-            <button aria-label="greet-btn" className="btn" onClick={doGreet}>Greet
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
-          </div>
-        </div>
-      </main>
-
-      <hr className="footer-divider"/>
-      <footer className="footer">
-        <span className="footer-version"><span>{wailsVersion}</span></span>
-        <span className="footer-time">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>{time}</span>
-        </span>
-        <a className="footer-docs" data-wml-openURL="https://v3.wails.io" aria-label="Wails documentation">Docs
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-        </a>
-      </footer>
-
-      <div className="toast" ref={toastRef} role="status" aria-live="polite">
-        <span className="toast-label">From Go</span>
-        <span aria-label="result" className="toast-msg" ref={resultRef}></span>
+      <div className="scroller" ref={scroller}>
+        {photos && photos.length === 0 && <div className="empty">Add JPEGs to the photos folder and rebuild.</div>}
+        <div className="canvas" style={{ height: layout?.height ?? 0 }}>{visible}</div>
       </div>
+      {open !== null && photos && photos[open] && (
+        <div className="lightbox" onClick={close}>
+          <img src={`/photos/${photos[open].full}`}
+               style={{ backgroundImage: `url(${photos[open].lqip})`, backgroundSize: 'cover' }} alt="" />
+        </div>
+      )}
     </>
   )
 }
-
-export default App
