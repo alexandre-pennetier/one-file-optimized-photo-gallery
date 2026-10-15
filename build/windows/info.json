@@ -6,9 +6,9 @@
 		"0409": {
 			"ProductVersion": "0.0.1",
 			"CompanyName": "dresdof",
-			"FileDescription": "A desktop photo gallery",
+			"FileDescription": "A photo gallery that ships as one self-contained file",
 			"LegalCopyright": "(c) 2026, dresdof",
-			"ProductName": "photo-gallery",
+			"ProductName": "One File Optimized Photo Gallery",
 			"Comments": "Optimized AVIF photo gallery"
 		}
 	}

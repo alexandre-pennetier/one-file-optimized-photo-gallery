@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=photo-gallery
-Comment=A desktop photo gallery
+Name=One File Optimized Photo Gallery
+Comment=A photo gallery that ships as one self-contained file
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/wails-gallery %u
+Exec=/usr/local/bin/gallery %u
 Terminal=false
 Type=Application
-Icon=wails-gallery
+Icon=gallery
 Categories=Utility;
-StartupWMClass=wails-gallery
+StartupWMClass=gallery
 
  

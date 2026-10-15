@@ -5,13 +5,13 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "wails-gallery"
+    !define INFO_PROJECTNAME "gallery"
 !endif
 !ifndef INFO_COMPANYNAME
     !define INFO_COMPANYNAME "dresdof"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "photo-gallery"
+    !define INFO_PRODUCTNAME "One File Optimized Photo Gallery"
 !endif
 !ifndef INFO_PRODUCTVERSION
     !define INFO_PRODUCTVERSION "0.0.1"

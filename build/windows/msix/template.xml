@@ -8,27 +8,27 @@
         AllowPromptForPassword="false">
     </Settings>
     <Installer
-        Path="wails-gallery.exe"
+        Path="gallery.exe"
         Arguments=""
-        InstallLocation="C:\Program Files\dresdof\photo-gallery">
+        InstallLocation="C:\Program Files\dresdof\One File Optimized Photo Gallery">
     </Installer>
     <PackageInformation
-        PackageName="photo-gallery"
-        PackageDisplayName="photo-gallery"
+        PackageName="One File Optimized Photo Gallery"
+        PackageDisplayName="One File Optimized Photo Gallery"
         PublisherName="CN=dresdof"
         PublisherDisplayName="dresdof"
         Version="0.1.0.0"
-        PackageDescription="A wails-gallery application">
+        PackageDescription="A photo gallery that ships as one self-contained file">
         <Capabilities>
             <Capability Name="runFullTrust" />
             
         </Capabilities>
         <Applications>
             <Application
-                Id="dresdof.wailsgallery"
-                Description="A wails-gallery application"
-                DisplayName="photo-gallery"
-                ExecutableName="wails-gallery.exe"
+                Id="dresdof.gallery"
+                Description="A photo gallery that ships as one self-contained file"
+                DisplayName="One File Optimized Photo Gallery"
+                ExecutableName="gallery.exe"
                 EntryPoint="Windows.FullTrustApplication">
                 
             </Application>
@@ -41,13 +41,13 @@
         </Dependencies>
         <Properties>
             <Framework>false</Framework>
-            <DisplayName>photo-gallery</DisplayName>
+            <DisplayName>One File Optimized Photo Gallery</DisplayName>
             <PublisherDisplayName>dresdof</PublisherDisplayName>
-            <Description>A wails-gallery application</Description>
+            <Description>A photo gallery that ships as one self-contained file</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>
     </PackageInformation>
-    <SaveLocation PackagePath="wails-gallery.msix" />
+    <SaveLocation PackagePath="gallery.msix" />
     <PackageIntegrity>
         <CertificatePath></CertificatePath>
     </PackageIntegrity>

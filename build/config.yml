@@ -6,9 +6,9 @@ version: '3'
 # This information is used to generate the build assets.
 info:
   companyName: "dresdof" # The name of the company
-  productName: "photo-gallery" # The name of the application
-  productIdentifier: "com.dresdof.photo-gallery" # The unique product identifier
-  description: "A desktop photo gallery" # The application description
+  productName: "One File Optimized Photo Gallery" # The name of the application
+  productIdentifier: "com.dresdof.one-file-optimized-photo-gallery" # The unique product identifier
+  description: "A photo gallery that ships as one self-contained file" # The application description
   copyright: "(c) 2026, dresdof" # Copyright text
   comments: "Optimized AVIF photo gallery" # Comments
   version: "0.0.1" # The application version

@@ -1,4 +1,4 @@
-module wails-gallery
+module one-file-optimized-photo-gallery
 
 go 1.25.0
 

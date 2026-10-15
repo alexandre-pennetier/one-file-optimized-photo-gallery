@@ -1,7 +1,8 @@
-# wails-gallery
+# One File Optimized Photo Gallery
 
 A small desktop photo gallery. Drop your JPEGs in a folder, build, and you get **one app file**
-that shows them in a fast, scrolling grid, grouped by the year they were taken.
+(`gallery.exe`) that shows them in a fast, scrolling grid, grouped by the year they were taken.
+The window itself is simply titled _Gallery_ (_Galerie_ in French).
 
 - Photos are shrunk and re-compressed (AVIF) at build time, so the app stays small.
 - Scrolling stays smooth with thousands of photos; the grid re-flows live when you resize the window.
@@ -19,6 +20,11 @@ _Screenshots use 30 free [Unsplash](https://unsplash.com/license) photos, see [c
 
 ## Quick start: get a gallery in 5 minutes
 
+```bash
+git clone https://github.com/alexandre-pennetier/one-file-optimized-photo-gallery.git
+cd one-file-optimized-photo-gallery
+```
+
 **1. Install the tools once** (Windows, macOS or Linux):
 
 | Tool | Why | Check it with |
@@ -35,13 +41,13 @@ this repo. Only JPEGs are picked up; sub-folders are ignored.
 
 ```bash
 wails3 dev      # opens the app with live reload while you work
-wails3 build    # makes the final app: bin/wails-gallery.exe (Windows)
+wails3 build    # makes the final app: bin/gallery.exe (Windows)
 ```
 
 The first run is the slowest (it optimizes every photo, roughly 1 second each). Later runs only
 process new or changed photos, so they are quick.
 
-**4. Done.** `bin/wails-gallery.exe` is a single file you can copy anywhere; the photos are
+**4. Done.** `bin/gallery.exe` is a single file you can copy anywhere; the photos are
 inside it. It needs the WebView2 runtime, which is already installed on current Windows 10/11.
 
 Something not showing? See [Troubleshooting](#troubleshooting).
@@ -54,7 +60,7 @@ Measured with the 30 demo photos above (3840 px JPEGs, `wails3 build` on Windows
 | --- | ---: | ---: |
 | Input: 30 JPEGs in `photos/` | 46.7 MiB (48,990,568 B) | - |
 | Optimized AVIFs embedded in the app (full size + thumbnails) | 4.2 MiB (4,416,392 B) | **-91%** |
-| Final app: `bin/wails-gallery.exe` (`wails3 build`) | 14.2 MiB (14,902,784 B) | **-70%** |
+| Final app: `bin/gallery.exe` (`wails3 build`) | 14.2 MiB (14,902,784 B) | **-70%** |
 | Final app, UPX-compressed (`wails3 task build:small`) | 7.3 MiB (7,654,400 B) | **-84%** |
 
 The exe is a complete app, so about 10 MiB of it is fixed overhead (Go runtime, Wails, the UI),
@@ -62,7 +68,7 @@ which does not grow with the number of photos. The more photos, the better the r
 of 200 phone photos (305 MB of JPEG) became a 35.8 MiB exe, **-88%**.
 
 Reproduce it: `ls -l photos/` for the input, `du -sb frontend/public/photos` for the AVIFs, and
-`ls -l bin/wails-gallery.exe` for the app.
+`ls -l bin/gallery.exe` for the app.
 
 ## What you see in the app
 
@@ -146,7 +152,7 @@ signed release APK in `bin/`), then install it with `adb install`.
 
 ```bash
 wails3 dev                    # dev server + app window (optimizes photos first)
-wails3 build                  # production exe -> bin/wails-gallery.exe
+wails3 build                  # production exe -> bin/gallery.exe
 wails3 task build:small       # build, then UPX-compress the exe (see "Tidbits")
 wails3 task optimize:photos   # run only the photo pipeline
 cd frontend && pnpm test      # unit tests (vitest); `pnpm typecheck` for tsc
@@ -240,6 +246,11 @@ multi-threaded itself), and no GPU path exists in sharp.
 
 ### Tidbits
 
+- **Names**: the project and repository are `one-file-optimized-photo-gallery` (Go module, npm
+  package, Wails app name), the product is _One File Optimized Photo Gallery_ (file properties,
+  installers; set in `build/config.yml`), the binary is `gallery` (`APP_NAME` in `Taskfile.yml`),
+  and the window title is _Gallery_ / _Galerie_ (`src/i18n.tsx`). On Android the launcher label
+  is _Gallery_.
 - **Languages** (`src/i18n.tsx`): a tiny built-in i18n, no library. `MESSAGES` holds one typed
   dictionary per language (a missing key is a compile error; plurals are functions). The start
   language comes from `navigator.languages` (the WebView follows the OS language), matching on the

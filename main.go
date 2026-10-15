@@ -15,8 +15,8 @@ var assets embed.FS
 
 func main() {
 	app := application.New(application.Options{
-		Name:        "wails-gallery",
-		Description: "Photo gallery",
+		Name:        "one-file-optimized-photo-gallery",
+		Description: "A photo gallery that ships as one self-contained file",
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},

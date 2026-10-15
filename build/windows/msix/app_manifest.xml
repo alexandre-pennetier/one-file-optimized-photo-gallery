@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap3">
   
   <Identity 
-    Name="dresdof.wailsgallery"
+    Name="dresdof.gallery"
     Publisher="CN=dresdof"
     Version="0.1.0.0" 
     ProcessorArchitecture="x64" />
   
   <Properties>
-    <DisplayName>photo-gallery</DisplayName>
+    <DisplayName>One File Optimized Photo Gallery</DisplayName>
     <PublisherDisplayName>dresdof</PublisherDisplayName>
-    <Description>A wails-gallery application</Description>
+    <Description>A photo gallery that ships as one self-contained file</Description>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   
@@ -29,10 +29,10 @@
   </Resources>
   
   <Applications>
-    <Application Id="dresdof.wailsgallery" Executable="wails-gallery.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="dresdof.gallery" Executable="gallery.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="photo-gallery"
-        Description="A wails-gallery application"
+        DisplayName="One File Optimized Photo Gallery"
+        Description="A photo gallery that ships as one self-contained file"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
@@ -41,7 +41,7 @@
       </uap:VisualElements>
       
       <Extensions>
-        <desktop:Extension Category="windows.fullTrustProcess" Executable="wails-gallery.exe" />
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="gallery.exe" />
         
         
       </Extensions>

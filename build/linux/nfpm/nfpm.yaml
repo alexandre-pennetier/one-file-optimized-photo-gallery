@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "wails-gallery"
+name: "gallery"
 arch: ${GOARCH}
 platform: "linux"
 version: "0.0.1"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "A desktop photo gallery"
+description: "A photo gallery that ships as one self-contained file"
 vendor: "dresdof"
 homepage: "https://wails.io"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/wails-gallery"
-    dst: "/usr/local/bin/wails-gallery"
+  - src: "./bin/gallery"
+    dst: "/usr/local/bin/gallery"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/wails-gallery.png"
-  - src: "./build/linux/wails-gallery.desktop"
-    dst: "/usr/share/applications/wails-gallery.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/gallery.png"
+  - src: "./build/linux/gallery.desktop"
+    dst: "/usr/share/applications/gallery.desktop"
 
 # Default dependencies for the GTK4 + WebKitGTK 6.0 stack (Ubuntu 24.04+ / Debian 13+)
 depends:
