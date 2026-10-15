@@ -10,13 +10,13 @@
     <Installer
         Path="wails-gallery.exe"
         Arguments=""
-        InstallLocation="C:\Program Files\My Company\My Product">
+        InstallLocation="C:\Program Files\dresdof\photo-gallery">
     </Installer>
     <PackageInformation
-        PackageName="My Product"
-        PackageDisplayName="My Product"
-        PublisherName="CN=My Company"
-        PublisherDisplayName="My Company"
+        PackageName="photo-gallery"
+        PackageDisplayName="photo-gallery"
+        PublisherName="CN=dresdof"
+        PublisherDisplayName="dresdof"
         Version="0.1.0.0"
         PackageDescription="A wails-gallery application">
         <Capabilities>
@@ -27,7 +27,7 @@
             <Application
                 Id="dresdof.wailsgallery"
                 Description="A wails-gallery application"
-                DisplayName="My Product"
+                DisplayName="photo-gallery"
                 ExecutableName="wails-gallery.exe"
                 EntryPoint="Windows.FullTrustApplication">
                 
@@ -41,8 +41,8 @@
         </Dependencies>
         <Properties>
             <Framework>false</Framework>
-            <DisplayName>My Product</DisplayName>
-            <PublisherDisplayName>My Company</PublisherDisplayName>
+            <DisplayName>photo-gallery</DisplayName>
+            <PublisherDisplayName>dresdof</PublisherDisplayName>
             <Description>A wails-gallery application</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>

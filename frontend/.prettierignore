@@ -1,0 +1,5 @@
+dist
+bindings
+public/photos
+node_modules
+pnpm-lock.yaml

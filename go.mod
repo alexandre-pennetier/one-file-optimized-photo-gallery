@@ -1,4 +1,4 @@
-module changeme
+module wails-gallery
 
 go 1.25.0
 

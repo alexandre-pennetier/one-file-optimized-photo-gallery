@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=My Product
-Comment=A wails-gallery application
+Name=photo-gallery
+Comment=A desktop photo gallery
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/wails-gallery.exe %u
+Exec=/usr/local/bin/wails-gallery %u
 Terminal=false
 Type=Application
-Icon=wails-gallery.exe
+Icon=wails-gallery
 Categories=Utility;
-StartupWMClass=wails-gallery.exe
+StartupWMClass=wails-gallery
 
  

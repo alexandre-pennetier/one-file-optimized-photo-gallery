@@ -81,6 +81,7 @@ tasks:
       - ../photos/*.JPG
       - ../photos/*.JPEG
       - scripts/optimize-photos.mjs
+      - scripts/optimize-lib.mjs
     generates:
       - public/photos/manifest.json
     cmds:
