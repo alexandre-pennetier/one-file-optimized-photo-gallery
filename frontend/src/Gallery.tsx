@@ -1,4 +1,5 @@
 import { memo, useMemo, useRef } from 'react'
+import { useI18n } from './i18n'
 import { firstRowAt, layoutByYear, type Photo } from './layout'
 import { useViewport } from './useViewport'
 
@@ -20,6 +21,7 @@ interface TileProps {
 }
 
 const Tile = memo(function Tile({ photo, index, x, y, w, h, onOpen }: TileProps) {
+  const { t } = useI18n()
   return (
     <button
       type="button"
@@ -31,7 +33,7 @@ const Tile = memo(function Tile({ photo, index, x, y, w, h, onOpen }: TileProps)
         backgroundImage: `url(${photo.lqip})`,
       }}
       onClick={() => onOpen(index)}
-      aria-label={`Open ${photo.name}`}
+      aria-label={t.open(photo.name)}
     >
       <img src={`/photos/${photo.thumb}`} width={photo.w} height={photo.h} alt="" decoding="async" draggable={false} />
     </button>

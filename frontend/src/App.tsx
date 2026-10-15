@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Banner } from './Banner'
 import { Gallery } from './Gallery'
+import { useI18n } from './i18n'
 import { Lightbox } from './Lightbox'
 import { sortPhotos, type Photo, type SortOrder } from './layout'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; photos: Photo[] }
 
 export default function App() {
+  const { t } = useI18n()
   const [state, setState] = useState<State>({ status: 'loading' })
   const [order, setOrder] = useState<SortOrder>('newest')
   const [open, setOpen] = useState<number | null>(null)
@@ -31,8 +33,8 @@ export default function App() {
   const sorted = useMemo(() => (state.status === 'ready' ? sortPhotos(state.photos, order) : []), [state, order])
 
   if (state.status === 'loading') return null
-  if (state.status === 'error') return <div className="empty">Could not load the photo list.</div>
-  if (state.photos.length === 0) return <div className="empty">Add JPEGs to the photos folder and rebuild.</div>
+  if (state.status === 'error') return <div className="empty">{t.loadError}</div>
+  if (state.photos.length === 0) return <div className="empty">{t.empty}</div>
 
   return (
     <div className="app">

@@ -33,16 +33,21 @@ body {
   background: #141418;
   border-bottom: 1px solid #25252b;
 }
-.banner h1 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .count {
+  margin-left: auto;
   color: #888;
 }
+.lang-btn,
 .sort {
-  margin-left: auto;
   padding: 6px 12px;
   border: 1px solid #34343c;
   border-radius: 6px;
@@ -51,9 +56,11 @@ body {
   font: inherit;
   cursor: pointer;
 }
+.lang-btn:hover,
 .sort:hover {
   background: #26262e;
 }
+.lang-btn:focus-visible,
 .sort:focus-visible {
   outline: 2px solid #5ec0f5;
 }
@@ -212,4 +219,64 @@ body {
   .lb-caption {
     animation: none;
   }
+}
+
+@media (max-width: 520px) {
+  .count {
+    display: none;
+  }
+  .banner {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .sort {
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+}
+
+.lang {
+  position: relative;
+}
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.chevron {
+  opacity: 0.6;
+}
+.flag {
+  flex: none;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+.lang-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 100%;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid #34343c;
+  border-radius: 8px;
+  background: #1c1c22;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+.lang-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lang-list li.active {
+  background: #2a2a33;
+}
+.lang-list li[aria-selected='true'] {
+  font-weight: 600;
 }

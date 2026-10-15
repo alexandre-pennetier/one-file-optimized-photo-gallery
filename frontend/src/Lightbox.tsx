@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, type MouseEvent } from 'react'
+import { useI18n } from './i18n'
 import { formatTaken, type Photo } from './layout'
 
 interface Props {
@@ -9,8 +10,9 @@ interface Props {
 }
 
 export function Lightbox({ photos, index, onChange, onClose }: Props) {
+  const { t, lang } = useI18n()
   const photo = photos[index]
-  const taken = useMemo(() => formatTaken(photo.taken), [photo.taken])
+  const taken = useMemo(() => formatTaken(photo.taken, lang), [photo.taken, lang])
   const closeBtn = useRef<HTMLButtonElement>(null)
   const prev = index > 0 ? index - 1 : null
   const next = index < photos.length - 1 ? index + 1 : null
@@ -70,16 +72,16 @@ export function Lightbox({ photos, index, onChange, onClose }: Props) {
           {index + 1} / {photos.length}
         </span>
       </div>
-      <button ref={closeBtn} type="button" className="lb-btn lb-close" aria-label="Close" onClick={onClose}>
+      <button ref={closeBtn} type="button" className="lb-btn lb-close" aria-label={t.close} onClick={onClose}>
         ×
       </button>
       {prev !== null && (
-        <button type="button" className="lb-btn lb-prev" aria-label="Previous photo" onClick={step(prev)}>
+        <button type="button" className="lb-btn lb-prev" aria-label={t.previous} onClick={step(prev)}>
           ‹
         </button>
       )}
       {next !== null && (
-        <button type="button" className="lb-btn lb-next" aria-label="Next photo" onClick={step(next)}>
+        <button type="button" className="lb-btn lb-next" aria-label={t.next} onClick={step(next)}>
           ›
         </button>
       )}
