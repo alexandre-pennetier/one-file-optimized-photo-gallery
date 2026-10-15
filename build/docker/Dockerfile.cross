@@ -30,6 +30,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && pkg-config --exists webkit2gtk-4.1 \
     && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g pnpm
+
 RUN go install mvdan.cc/garble@${GARBLE_VERSION}
 
 # Install Zig - automatically selects correct binary for host architecture.
@@ -190,7 +192,7 @@ export CGO_CFLAGS="-w"
 
 # Build frontend if exists and not already built (host may have built it)
 if [ -d "frontend" ] && [ -f "frontend/package.json" ] && [ ! -d "frontend/dist" ]; then
-    (cd frontend && npm install --silent && npm run build --silent)
+    (cd frontend && pnpm install --silent && pnpm run build --silent)
 fi
 
 # Build
