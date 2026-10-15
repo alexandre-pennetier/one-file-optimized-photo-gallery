@@ -11,6 +11,12 @@ that shows them in a fast, scrolling grid, grouped by the year they were taken.
   switches it.
 - Built with [Wails v3](https://v3.wails.io) (Go) + React + TypeScript. Also runs on Android.
 
+![The gallery window: language and sort buttons in the top banner, photos grouped under year headers](docs/screenshot-gallery.webp)
+
+![The full-size viewer with the capture date at the bottom](docs/screenshot-viewer.webp)
+
+_Screenshots use 30 free [Unsplash](https://unsplash.com/license) photos, see [credits](docs/CREDITS.md)._
+
 ## Quick start: get a gallery in 5 minutes
 
 **1. Install the tools once** (Windows, macOS or Linux):
@@ -39,6 +45,24 @@ process new or changed photos, so they are quick.
 inside it. It needs the WebView2 runtime, which is already installed on current Windows 10/11.
 
 Something not showing? See [Troubleshooting](#troubleshooting).
+
+## How much smaller is it?
+
+Measured with the 30 demo photos above (3840 px JPEGs, `wails3 build` on Windows):
+
+| What | Size | vs. the input photos |
+| --- | ---: | ---: |
+| Input: 30 JPEGs in `photos/` | 46.7 MiB (48,990,568 B) | - |
+| Optimized AVIFs embedded in the app (full size + thumbnails) | 4.2 MiB (4,416,392 B) | **-91%** |
+| Final app: `bin/wails-gallery.exe` (`wails3 build`) | 14.2 MiB (14,902,784 B) | **-70%** |
+| Final app, UPX-compressed (`wails3 task build:small`) | 7.3 MiB (7,654,400 B) | **-84%** |
+
+The exe is a complete app, so about 10 MiB of it is fixed overhead (Go runtime, Wails, the UI),
+which does not grow with the number of photos. The more photos, the better the ratio: a library
+of 200 phone photos (305 MB of JPEG) became a 35.8 MiB exe, **-88%**.
+
+Reproduce it: `ls -l photos/` for the input, `du -sb frontend/public/photos` for the AVIFs, and
+`ls -l bin/wails-gallery.exe` for the app.
 
 ## What you see in the app
 
