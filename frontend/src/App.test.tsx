@@ -62,9 +62,9 @@ describe('App', () => {
       lqip: 'data:,',
     })
     const manifest = [
-      photo('a.jpg', '2020-05-01T10:00:00'),
-      photo('b.jpg', '2024-05-01T10:00:00'),
-      photo('c.jpg', '2022-05-01T10:00:00'),
+      photo('a.jpg', '2020-05-01T10:00:00Z'),
+      photo('b.jpg', '2024-05-01T10:00:00Z'),
+      photo('c.jpg', '2022-05-01T10:00:00Z'),
     ]
     const years = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
 

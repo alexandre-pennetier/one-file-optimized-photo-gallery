@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Lightbox } from './Lightbox'
 import type { Photo } from './layout'
 
-const photos: Photo[] = ['a', 'b', 'c'].map((n) => ({
+const photos: Photo[] = ['a', 'b', 'c'].map((n, i) => ({
   id: n,
   name: `${n}.jpg`,
-  taken: 0,
+  taken: Date.UTC(2026, 8, 12 + i, 16, 40),
   w: 100,
   h: 100,
   thumb: `${n}-t.avif`,
@@ -25,6 +25,14 @@ const setup = (index: number) => {
 }
 
 describe('Lightbox', () => {
+  it('shows when the photo was taken, plus its position', () => {
+    setup(1)
+    const time = screen.getByText(/2026/)
+    expect(time.tagName).toBe('TIME')
+    expect(time.getAttribute('datetime')).toBe('2026-09-13T16:40:00')
+    expect(screen.getByText(/2 \/ 3/)).toBeTruthy()
+  })
+
   it('shows the full-size image as an accessible dialog', () => {
     setup(1)
     expect(screen.getByRole('dialog', { name: 'b.jpg' })).toBeTruthy()

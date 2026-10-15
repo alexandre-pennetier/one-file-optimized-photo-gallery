@@ -1,7 +1,7 @@
 export interface Photo {
   id: string
   name: string
-  /** Capture time, epoch ms (EXIF date, else file mtime). */
+  /** Capture wall-clock time packed as a UTC epoch in ms (EXIF date, else file mtime). Read it with UTC getters. */
   taken: number
   w: number
   h: number
@@ -40,7 +40,7 @@ export interface Layout {
 
 export type SortOrder = 'newest' | 'oldest'
 
-export const yearOf = (p: Photo): number => new Date(p.taken).getFullYear()
+export const yearOf = (p: Photo): number => new Date(p.taken).getUTCFullYear()
 
 /** Sorts by capture time; ties fall back to the file name so the order is stable. */
 export function sortPhotos(photos: Photo[], order: SortOrder): Photo[] {
@@ -136,4 +136,24 @@ export function firstRowAt(rows: Row[], y: number): number {
     else hi = mid
   }
   return lo
+}
+
+export interface TakenParts {
+  weekday: string
+  date: string
+  time: string
+  /** ISO 8601 date-time for the <time> element. */
+  iso: string
+}
+
+/** Human-friendly capture date. `taken` is a wall-clock time, so format it as UTC. */
+export function formatTaken(taken: number, locale?: string): TakenParts {
+  const fmt = (o: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(locale, { ...o, timeZone: 'UTC' }).format(taken)
+  return {
+    weekday: fmt({ weekday: 'long' }),
+    date: fmt({ day: 'numeric', month: 'long', year: 'numeric' }),
+    time: fmt({ hour: 'numeric', minute: '2-digit' }),
+    iso: new Date(taken).toISOString().slice(0, 19),
+  }
 }

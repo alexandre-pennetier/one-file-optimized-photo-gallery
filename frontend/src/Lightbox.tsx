@@ -1,5 +1,5 @@
-import { useEffect, useRef, type MouseEvent } from 'react'
-import type { Photo } from './layout'
+import { useEffect, useMemo, useRef, type MouseEvent } from 'react'
+import { formatTaken, type Photo } from './layout'
 
 interface Props {
   photos: Photo[]
@@ -10,6 +10,7 @@ interface Props {
 
 export function Lightbox({ photos, index, onChange, onClose }: Props) {
   const photo = photos[index]
+  const taken = useMemo(() => formatTaken(photo.taken), [photo.taken])
   const closeBtn = useRef<HTMLButtonElement>(null)
   const prev = index > 0 ? index - 1 : null
   const next = index < photos.length - 1 ? index + 1 : null
@@ -44,13 +45,31 @@ export function Lightbox({ photos, index, onChange, onClose }: Props) {
   }
 
   return (
-    <div className="lightbox" role="dialog" aria-modal="true" aria-label={photo.name} onClick={onClose}>
+    <div
+      className="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={photo.name}
+      aria-describedby="lb-caption"
+      onClick={onClose}
+    >
       <img
         src={`/photos/${photo.full}`}
         alt={photo.name}
         style={{ backgroundImage: `url(${photo.lqip})` }}
         onClick={(e) => e.stopPropagation()}
       />
+      <div id="lb-caption" className="lb-caption" key={photo.id}>
+        <span className="lb-weekday">{taken.weekday}</span>
+        <time className="lb-date" dateTime={taken.iso}>
+          {taken.date}
+        </time>
+        <span className="lb-meta">
+          {taken.time}
+          <i aria-hidden="true">·</i>
+          {index + 1} / {photos.length}
+        </span>
+      </div>
       <button ref={closeBtn} type="button" className="lb-btn lb-close" aria-label="Close" onClick={onClose}>
         ×
       </button>

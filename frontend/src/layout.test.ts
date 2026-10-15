@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { firstRowAt, justify, layoutByYear, sortPhotos, yearOf, type Photo } from './layout'
+import { firstRowAt, justify, layoutByYear, formatTaken, sortPhotos, yearOf, type Photo } from './layout'
 
 const photo = (w: number, h: number, i = 0): Photo => ({
   id: String(i),
@@ -69,9 +69,9 @@ const at = (iso: string, name: string, w = 1500, h = 1000): Photo => ({
 
 describe('sortPhotos', () => {
   const list = [
-    at('2021-06-01T12:00:00', 'b.jpg'),
-    at('2023-01-15T12:00:00', 'c.jpg'),
-    at('2021-06-01T12:00:00', 'a.jpg'),
+    at('2021-06-01T12:00:00Z', 'b.jpg'),
+    at('2023-01-15T12:00:00Z', 'c.jpg'),
+    at('2021-06-01T12:00:00Z', 'a.jpg'),
   ]
 
   it('sorts most recent first, breaking ties by name', () => {
@@ -92,12 +92,12 @@ describe('sortPhotos', () => {
 describe('layoutByYear', () => {
   const list = sortPhotos(
     [
-      at('2024-03-01T10:00:00', '2024-a.jpg'),
-      at('2024-09-01T10:00:00', '2024-b.jpg'),
-      at('2022-05-01T10:00:00', '2022-a.jpg'),
-      at('2022-06-01T10:00:00', '2022-b.jpg'),
-      at('2022-07-01T10:00:00', '2022-c.jpg'),
-      at('2019-12-31T10:00:00', '2019-a.jpg'),
+      at('2024-03-01T10:00:00Z', '2024-a.jpg'),
+      at('2024-09-01T10:00:00Z', '2024-b.jpg'),
+      at('2022-05-01T10:00:00Z', '2022-a.jpg'),
+      at('2022-06-01T10:00:00Z', '2022-b.jpg'),
+      at('2022-07-01T10:00:00Z', '2022-c.jpg'),
+      at('2019-12-31T10:00:00Z', '2019-a.jpg'),
     ],
     'newest',
   )
@@ -136,5 +136,27 @@ describe('layoutByYear', () => {
     const { headers, rows } = layoutByYear(one, 800, 200, 4, 60)
     expect(headers).toHaveLength(1)
     expect(rows[0].top).toBe(60)
+  })
+})
+
+describe('formatTaken', () => {
+  const taken = Date.UTC(2026, 8, 12, 16, 40, 23) // wall clock 2026-09-12 16:40:23
+
+  it('formats weekday, date and time of the wall clock', () => {
+    const f = formatTaken(taken, 'en-US')
+    expect(f.weekday).toBe('Saturday')
+    expect(f.date).toBe('September 12, 2026')
+    expect(f.time).toMatch(/^4:40\sPM$/)
+    expect(f.iso).toBe('2026-09-12T16:40:23')
+  })
+
+  it('does not shift the day around midnight', () => {
+    const f = formatTaken(Date.UTC(2024, 11, 31, 23, 59, 30), 'en-US')
+    expect(f.date).toBe('December 31, 2024')
+    expect(f.iso).toBe('2024-12-31T23:59:30')
+  })
+
+  it('localizes', () => {
+    expect(formatTaken(taken, 'fr-FR').weekday).toBe('samedi')
   })
 })

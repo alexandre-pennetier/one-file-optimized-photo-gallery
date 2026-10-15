@@ -31,19 +31,23 @@ async function encode(buf, id, outDir) {
 }
 
 /**
- * When the photo was taken, as epoch ms: EXIF capture date, else the file's
- * modification time. EXIF has no timezone, so the year shown is the one the
- * camera wrote.
+ * "Wall clock" time: the date/time components as local fields, packed into a
+ * UTC epoch. EXIF carries no timezone, so this keeps what the camera wrote and
+ * lets the viewer format it with timeZone 'UTC' on any machine, in any zone.
  */
+const wallClock = (d) =>
+  Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds())
+
+/** When the photo was taken (wall clock, see above): EXIF capture date, else the file's mtime. */
 async function takenAt(buf, file) {
   try {
     const exif = await exifr.parse(buf, { pick: ['DateTimeOriginal', 'CreateDate', 'DateTimeDigitized'] })
     const date = exif?.DateTimeOriginal ?? exif?.CreateDate ?? exif?.DateTimeDigitized
-    if (date instanceof Date && !Number.isNaN(date.getTime())) return date.getTime()
+    if (date instanceof Date && !Number.isNaN(date.getTime())) return wallClock(date)
   } catch {
     // unreadable EXIF: fall back to mtime
   }
-  return (await stat(file)).mtimeMs
+  return wallClock(new Date((await stat(file)).mtimeMs))
 }
 
 async function readPrevious(manifestPath) {
@@ -57,7 +61,7 @@ async function readPrevious(manifestPath) {
 async function processPhoto(name, previous, { srcDir, outDir, log }) {
   const file = path.join(srcDir, name)
   const buf = await readFile(file)
-  const taken = Math.round(await takenAt(buf, file))
+  const taken = await takenAt(buf, file)
   const id = createHash('sha1').update(buf).update(settingsKey).digest('hex').slice(0, 12)
   const cached = previous.get(id)
   const done = existsSync(path.join(outDir, `${id}.avif`)) && existsSync(path.join(outDir, `${id}-t.avif`))

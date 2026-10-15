@@ -34,8 +34,8 @@ describe('capture date', () => {
       .toBuffer()
     await writeFile(path.join(srcDir, 'dated.jpg'), buf)
     const { photos } = await run()
-    expect(new Date(photos[0].taken).getFullYear()).toBe(2019)
-    expect(new Date(photos[0].taken).getMonth()).toBe(6)
+    // wall clock as written by the camera, independent of the machine's timezone
+    expect(new Date(photos[0].taken).toISOString()).toBe('2019-07-04T12:30:00.000Z')
   })
 
   it('falls back to the file modification time without EXIF', async () => {
@@ -44,7 +44,7 @@ describe('capture date', () => {
     const mtime = new Date('2015-03-02T10:00:00')
     await utimes(file, mtime, mtime)
     const { photos } = await run()
-    expect(photos[0].taken).toBe(mtime.getTime())
+    expect(new Date(photos[0].taken).toISOString()).toBe('2015-03-02T10:00:00.000Z') // mtime wall clock
   })
 
   it('keeps the date on a cached second run', async () => {

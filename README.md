@@ -48,8 +48,9 @@ Something not showing? See [Troubleshooting](#troubleshooting).
 - **"Taken" date**: read from the photo's EXIF data (`DateTimeOriginal`). If a photo has none
   (for example a screenshot), the file's modified date is used instead. Photos with the same
   date are ordered by file name.
-- **Lightbox**: click a photo to open it large. `←` / `→` move between photos, `Esc` or a click
-  on the background closes it.
+- **Lightbox**: click a photo to open it large. The day, full date, time and position ("4 / 200")
+  are shown in a caption at the bottom. `←` / `→` move between photos, `Esc` or a click on the
+  background closes it.
 
 ## Run it on Android
 
@@ -172,8 +173,10 @@ Per photo it produces, under `frontend/public/photos/` (copied into `dist`, then
 - `<id>-t.avif`: thumbnail, long edge 720 px, q45 (grid)
 - a 16 px blurred WebP data URI (`lqip`) inlined in `manifest.json` as a placeholder
 - `manifest.json`: `[{id, name, taken, w, h, thumb, full, lqip}]`, where `taken` is the capture
-  time in epoch ms (EXIF `DateTimeOriginal`, else file mtime). It is recomputed every run, so it
-  is never stale in the cache.
+  time (EXIF `DateTimeOriginal`, else file mtime) stored as a "wall clock" UTC epoch in ms: the
+  date and time exactly as the camera wrote them, with no timezone conversion. The UI formats it
+  with `timeZone: 'UTC'`, so a photo shows the same time on every machine. It is recomputed every
+  run, so it is never stale in the cache.
 
 `id` is a SHA-1 prefix of the source bytes + encoder settings, so edits and setting changes are
 detected, unchanged photos are skipped, and outputs for removed photos are deleted. EXIF
@@ -190,7 +193,8 @@ multi-threaded itself), and no GPU path exists in sharp.
   the width exactly; the last row of a group keeps the target height. O(n), rerun on every resize.
 - **Year groups** (`layout.ts#layoutByYear`): photos are sorted by `taken` (`sortPhotos`, ties
   broken by file name) and a header block is inserted whenever the year changes; rows are laid
-  out per year. EXIF has no timezone, so the year is the one the camera wrote.
+  out per year. EXIF has no timezone, so the year is the one the camera wrote (`yearOf` uses UTC getters on
+  the wall-clock value).
 - **Windowing**: only rows (and headers) within ~1200 px of the viewport are mounted
   (`firstRowAt` binary search). "Infinite scroll" here means the whole list is virtualized.
 - **Cheap updates**: scroll and `ResizeObserver` events are coalesced to one state update per
