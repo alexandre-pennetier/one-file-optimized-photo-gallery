@@ -18,3 +18,10 @@ frontend/public/photos
 # Input photos stay local; only the placeholder is tracked
 photos/*
 !photos/put-photos-here
+
+# Android build output
+build/android/.gradle/
+build/android/build/
+build/android/app/build/
+build/android/app/src/main/jniLibs/
+build/android/local.properties
